@@ -45,7 +45,7 @@ public class OpenCsvScheme extends TextLine {
         setCharsetName(charsetName);
         setSinkFields(fields);
         setSourceFields(fields);
-
+        
         this.hasHeader = hasHeader;
         this.separator = separator;
         this.quote = quote;
@@ -53,7 +53,7 @@ public class OpenCsvScheme extends TextLine {
         this.strict = strict;
         this.charsetName = charsetName != null ? charsetName : "UTF8";
     }
-
+    
     /**
      * Use for files without headers.
      */
@@ -134,12 +134,10 @@ public class OpenCsvScheme extends TextLine {
     
     @Override
     public void sourcePrepare(final FlowProcess<JobConf> flowProcess, final SourceCall<Object[], RecordReader> sourceCall) {
-        super.sourcePrepare(flowProcess, sourceCall);
-        final Object[] context = sourceCall.getContext();
         sourceCall.setContext(new Object[4]);
-        sourceCall.getContext()[0] = context[0];
-        sourceCall.getContext()[1] = context[1];
-        sourceCall.getContext()[2] = context[2];
+        sourceCall.getContext()[0] = sourceCall.getInput().createKey();
+        sourceCall.getContext()[1] = sourceCall.getInput().createValue();
+        sourceCall.getContext()[2] = Charset.forName(charsetName);
         sourceCall.getContext()[3] = createCsvParser();
     }
     
@@ -151,7 +149,7 @@ public class OpenCsvScheme extends TextLine {
         while (sourceCall.getInput().next(context[0], context[1])) {
             if (hasHeader && ((LongWritable) context[0]).get() == 0)
                 continue;
-            final Object[] split;
+            final String[] split;
             try {
                 split = ((CSVParser) sourceCall.getContext()[3]).parseLine(makeEncodedString(context));
             } catch (IOException exc) {
@@ -161,6 +159,9 @@ public class OpenCsvScheme extends TextLine {
                 flowProcess.increment("com.tresata.cascading.scheme.OpenCsvScheme", "Invalid Records", 1);
                 continue;
             }
+            for (int i = 0; i < split.length; i++)
+                if (split[i].equals(""))
+                    split[i] = null;
             final Tuple tuple = sourceCall.getIncomingEntry().getTuple();
             tuple.clear();
             tuple.addAll(split);
@@ -215,11 +216,11 @@ public class OpenCsvScheme extends TextLine {
         stringWriter.getBuffer().setLength(0);
         int i = 0;
         for (Object item: value) {
-            nextLine[i] = item.toString();
+            nextLine[i] = item == null ? "" : item.toString();
             i++;
         }
         csvWriter.writeNext(nextLine);
-        int l = stringWriter.getBuffer().length();
+        final int l = stringWriter.getBuffer().length();
         stringWriter.getBuffer().setLength(l > 0 ? l - 1 : 0);
         text.set(stringWriter.getBuffer().toString().getBytes(charset));
         sinkCall.getOutput().collect(null, text);
