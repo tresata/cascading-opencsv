@@ -1,5 +1,6 @@
 package com.tresata.cascading.opencsv;
 
+import java.io.Writer;
 import java.io.StringWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -98,12 +99,24 @@ public class OpenCsvScheme extends TextLine {
         return escape;
     }
 
-    private CSVParser createCsvParser() {
+    public Boolean isStrict() {
+        return strict;
+    }
+
+    public String getCharsetName() {
+        return charsetName;
+    }
+    
+    protected CSVParser createCsvParser() {
         return new CSVParser(separator, quote, escape);
     }
 
+    protected CSVWriter createCsvWriter(final Writer writer) {
+        return new CSVWriter(writer, separator, quote, escape);
+    }
+
     @SuppressWarnings("unchecked")
-    private Fields parseFirstLine(final FlowProcess<JobConf> flowProcess, final Tap tap) {
+    protected Fields parseFirstLine(final FlowProcess<JobConf> flowProcess, final Tap tap) {
         // no need to open them all
         final Tap singleTap = tap instanceof CompositeTap ? (Tap) ((CompositeTap) tap).getChildTaps().next() : tap;
         
@@ -186,7 +199,7 @@ public class OpenCsvScheme extends TextLine {
     @Override
     public void sinkPrepare(final FlowProcess<JobConf> flowProcess, final SinkCall<Object[], OutputCollector> sinkCall) throws IOException {
         final StringWriter stringWriter = new StringWriter(4 * 1024);
-        final CSVWriter csvWriter = new CSVWriter(stringWriter, separator, quote, escape);
+        final CSVWriter csvWriter = createCsvWriter(stringWriter);
         sinkCall.setContext(new Object[5]);
         sinkCall.getContext()[0] = new Text();
         sinkCall.getContext()[1] = stringWriter;
@@ -207,7 +220,7 @@ public class OpenCsvScheme extends TextLine {
     }
         
     @SuppressWarnings("unchecked")
-    private void write(final SinkCall<Object[], OutputCollector> sinkCall, final Iterable<? extends Object> value) throws IOException {
+    protected void write(final SinkCall<Object[], OutputCollector> sinkCall, final Iterable<? extends Object> value) throws IOException {
         final Text text = (Text) sinkCall.getContext()[0];
         final StringWriter stringWriter = (StringWriter) sinkCall.getContext()[1];
         final Charset charset = (Charset) sinkCall.getContext()[2];
