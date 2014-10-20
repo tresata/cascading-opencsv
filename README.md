@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tresata/cascading-opencsv.svg?branch=master)](https://travis-ci.org/tresata/cascading-opencsv)
+
 # Cascading OpenCsv Scheme
 
 At Tresata we sometimes need to parse csv files (or text files with other delimiters such as bar, tilde, tab, or semi-colon) that cannot be handled by Cascading's TextDelimited. The main issue seems to be csv files that are quoted and contain escaped quotes. It seems TextDelimited chose not to support this due to performance reasons. So we wrote OpenCsvScheme which uses the opencsv library (http://opencsv.sourceforge.net/) to be able to read those files.
