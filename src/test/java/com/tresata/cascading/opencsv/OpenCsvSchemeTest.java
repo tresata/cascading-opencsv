@@ -2,10 +2,9 @@ package com.tresata.cascading.opencsv;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.io.IOException;
-
-import com.google.common.collect.Lists;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
@@ -40,12 +39,12 @@ public class OpenCsvSchemeTest {
         final TupleEntryIterator iter2 = source2.openForRead(new HadoopFlowProcess(new JobConf(conf)));
         if (!iter1.getFields().equals(iter2.getFields()))
             return false;
-        List<Tuple> list1 = Lists.newArrayList();
+        List<Tuple> list1 = new ArrayList<Tuple>();
         while (iter1.hasNext())
             list1.add(new Tuple(iter1.next().getTuple()));
         iter1.close();
         Collections.sort(list1);
-        List<Tuple> list2 = Lists.newArrayList();
+        List<Tuple> list2 = new ArrayList<Tuple>();
         while (iter2.hasNext())
             list2.add(new Tuple(iter2.next().getTuple()));
         iter2.close();

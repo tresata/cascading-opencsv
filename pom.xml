@@ -2,10 +2,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.tresata</groupId>
   <artifactId>cascading-opencsv</artifactId>
-  <version>0.1.1</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>OpenCsv Tap for Cascading</name>
-  <url>http://www.tresata.com</url>
+  <url>https://github.com/tresata/cascading-opencsv</url>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>cascading</groupId>
       <artifactId>cascading-hadoop</artifactId>
-      <version>2.1.6</version>
+      <version>2.6.2</version>
     </dependency>
     <dependency>
       <groupId>net.sf.opencsv</groupId>
@@ -48,19 +48,13 @@
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-core</artifactId>
-      <version>1.0.4</version>
+      <version>1.2.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.10</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>14.0.1</version>
+      <version>4.11</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -83,9 +77,55 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.4.1</version>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
+  
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 </project>
